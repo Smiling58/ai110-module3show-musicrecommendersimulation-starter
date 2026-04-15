@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+    </marker>
+    <style>
+      .node { fill:#f8f9fa; stroke:#333; stroke-width:1.2px; rx:6px; }
+      .diamond { fill:#fff7e6; stroke:#333; stroke-width:1.2px; }
+      .text { font-family: Arial, Helvetica, sans-serif; font-size:13px; fill:#111 }
+      .small { font-size:11px; fill:#333 }
+    </style>
+  </defs>
+
+  <!-- Nodes left-to-right -->
+  <!-- A -->
+  <rect class="node" x="20" y="40" width="160" height="46" />
+  <text class="text" x="100" y="70" text-anchor="middle">User Preferences</text>
+
+  <!-- B -->
+  <rect class="node" x="220" y="40" width="160" height="46" />
+  <text class="text" x="300" y="70" text-anchor="middle">Load songs.csv</text>
+
+  <!-- C (diamond) -->
+  <g transform="translate(460,63)">
+    <polygon class="diamond" points="0,-36 70,0 0,36 -70,0" />
+    <text class="text" x="0" y="4" text-anchor="middle">For each song</text>
+  </g>
+
+  <!-- D -->
+  <rect class="node" x="620" y="12" width="160" height="46" />
+  <text class="text" x="700" y="40" text-anchor="middle">Extract features</text>
+
+  <!-- E -->
+  <rect class="node" x="820" y="12" width="160" height="46" />
+  <text class="text" x="900" y="40" text-anchor="middle">Compute score</text>
+
+  <!-- F -->
+  <rect class="node" x="1020" y="12" width="160" height="46" />
+  <text class="text" x="1100" y="40" text-anchor="middle">Append result</text>
+
+  <!-- G -->
+  <rect class="node" x="220" y="140" width="160" height="46" />
+  <text class="text" x="300" y="168" text-anchor="middle">All songs scored</text>
+
+  <!-- H -->
+  <rect class="node" x="420" y="140" width="160" height="46" />
+  <text class="text" x="500" y="168" text-anchor="middle">Sort by score (desc)</text>
+
+  <!-- I -->
+  <rect class="node" x="620" y="140" width="200" height="46" />
+  <text class="text" x="720" y="168" text-anchor="middle">Filter listened / exclusions</text>
+
+  <!-- J -->
+  <rect class="node" x="860" y="140" width="160" height="46" />
+  <text class="text" x="940" y="168" text-anchor="middle">Select Top K</text>
+
+  <!-- K -->
+  <rect class="node" x="1060" y="140" width="200" height="46" />
+  <text class="text" x="1160" y="168" text-anchor="middle">Output: Ranked recommendations</text>
+
+  <!-- Arrows -->
+  <line x1="180" y1="63" x2="220" y2="63" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="380" y1="63" x2="460" y2="63" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+
+  <line x1="530" y1="63" x2="620" y2="35" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="780" y1="35" x2="820" y2="35" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="980" y1="35" x2="1020" y2="35" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+
+  <!-- loop back from F to C -->
+  <path d="M1080 58 C1080 110, 760 110, 530 90" fill="none" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+
+  <!-- from C down to G -->
+  <line x1="460" y1="99" x2="460" y2="140" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+
+  <!-- G -> H -> I -> J -> K -->
+  <line x1="380" y1="168" x2="420" y2="168" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="580" y1="168" x2="620" y2="168" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="820" y1="168" x2="860" y2="168" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+  <line x1="1020" y1="168" x2="1060" y2="168" stroke="#333" stroke-width="1.6" marker-end="url(#arrow)" />
+
+  <!-- Labels for small notes -->
+  <text class="small" x="100" y="22" text-anchor="middle">Input</text>
+  <text class="small" x="1160" y="22" text-anchor="end">Process (The Loop)</text>
+
+</svg>
