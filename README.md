@@ -48,19 +48,14 @@ The top `k` songs (default 5) with the highest scores are returned as recommenda
 
 ### Recommendation Flow
 
-```
-data/songs.csv
-      │
-      ▼
- load_songs()  ──►  List[Song]
-                         │
-               UserProfile (genre, mood, energy, acoustic)
-                         │
-                         ▼
-              recommend_songs() / Recommender.recommend()
-                         │
-                         ▼
-         Top-k (song, score, explanation) tuples
+```mermaid
+flowchart TD
+    CSV["data/songs.csv"] --> LOAD["load_songs()"]
+    LOAD --> CATALOG["List of Songs\n(genre, mood, energy, acousticness…)"]
+    USER["UserProfile\n(genre, mood, energy, likes_acoustic)"] --> SCORE
+    CATALOG --> SCORE["_score_song()\nGenre match +0.40\nMood match +0.30\nEnergy proximity ×0.40\nAcoustic bonus +0.10"]
+    SCORE --> RANK["Sort by score descending"]
+    RANK --> TOPK["Top-k Results\n(song, score, explanation)"]
 ```
 
 ---
@@ -98,34 +93,45 @@ pytest
 You can add more tests in `tests/test_recommender.py`.
 
 ---
-
-## Experiments You Tried
-
-_Document the experiments you ran as you built and tuned the system. For example:_
-
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did results differ for a user who `likes_acoustic = True` vs. `False`
-- How did the system handle edge cases like an empty catalog or an unknown genre
+![High-Energy Pop and Chill Lofi](image.png)
+![Deep Intense Rock and Late-Night R&B](image-1.png)
+![Acoustic Folk Wanderer](image-2.png)
+![Absolute Silence — edge case](image-3.png)
+![Phantom Genre — edge case](image-4.png)
+![Perfectly Neutral — edge case](image-5.png)
 
 ---
 
-## Limitations and Risks
+## Experiments
 
-- **Small catalog** — the system has 20 songs across 10 genres; recommendations are still heavily constrained by what's available.
-- **No collaborative filtering** — it only uses song attributes and a single user profile, not the listening history of similar users.
-- **Binary genre/mood matching** — genre and mood are exact-match strings; "indie pop" and "pop" score as completely different even though they overlap.
-- **Static user profile** — the system cannot learn or update as a user's taste changes over time.
-- **Potential genre bias** — if most songs in the catalog are one genre, that genre will dominate recommendations regardless of user preference.
+**Weight tuning — genre vs. energy**
+Genre started at 0.40, energy at 0.20. A pop user wanting chill mood still got two wrong-mood pop songs at the top. Halving genre to 0.20 and doubling energy to 0.40 fixed it.
+
+**Adversarial profiles**
+Phantom Genre (`bossa_nova`) matched nothing on genre — the list still ranked meaningfully by mood and energy. Absolute Silence (`energy: 0.0`) exposed the catalog floor penalty at 0.22.
+
+**Acoustic preference**
+`likes_acoustic: True` consistently surfaced quieter songs. `likes_acoustic: False` still received acoustic songs — there is no penalty, only a one-directional bonus.
+
+---
+
+## Limitations
+
+- **Small catalog** — most genres have one match and four fallbacks.
+- **Exact string matching** — "indie pop" ≠ "pop", "chill" ≠ "relaxed". Adjacent labels score zero overlap.
+- **No penalty system** — wrong-mood songs still appear via energy-proximity credit.
+- **Static preferences** — the system cannot learn or adjust over time.
+- **Catalog energy floor** — quietest song is 0.22; low-energy users are always slightly penalized.
 
 ---
 
 ## Reflection
 
-_Write 1–2 paragraphs here about what you learned:_
+Changing two weight values — no logic, no new features — completely changed whose preferences the system respected. Scoring weights are not neutral. They encode priorities that users never see.
 
-- How recommenders turn data (features, scores, rankings) into predictions
-- Where bias or unfairness could emerge — for example, if the song catalog overrepresents certain genres or moods, or if energy-level weighting systematically disadvantages lower-energy listeners
+The Perfectly Neutral profile was the most surprising result. A user asking for chill pop got wrong-mood songs at the top simply because genre matched. A small catalog amplifies bias in ways that are invisible until you deliberately test for them.
+
+See [model_card.md](model_card.md) and [reflection.md](reflection.md) for the full evaluation and profile comparisons.
 
 ---
 

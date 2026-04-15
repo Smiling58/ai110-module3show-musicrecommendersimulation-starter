@@ -50,15 +50,56 @@ def load_songs(csv_path: str) -> List[Dict]:
     Loads songs from a CSV file.
     Required by src/main.py
     """
-    # TODO: Implement CSV loading logic
+    import csv
     print(f"Loading songs from {csv_path}...")
-    return []
+    songs = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            row["energy"]           = float(row["energy"])
+            row["tempo_bpm"]        = float(row["tempo_bpm"])
+            row["valence"]          = float(row["valence"])
+            row["danceability"]     = float(row["danceability"])
+            row["acousticness"]     = float(row["acousticness"])
+            row["speechiness"]      = float(row["speechiness"])
+            row["instrumentalness"] = float(row["instrumentalness"])
+            songs.append(row)
+    return songs
+
+
+def _score_song(user_prefs: Dict, song: Dict) -> Tuple[float, str]:
+    """Returns (score, explanation) for a single song against a user profile."""
+    score = 0.0
+    reasons = []
+
+    # Genre match — worth 20 % of the total (halved from 40 %)
+    if song["genre"] == user_prefs["genre"]:
+        score += 0.20
+        reasons.append("genre match")
+
+    # Mood match — worth 30 %
+    if song["mood"] == user_prefs["mood"]:
+        score += 0.30
+        reasons.append("mood match")
+
+    # Energy proximity — worth up to 40 % (doubled from 20 %)
+    energy_similarity = 1.0 - abs(song["energy"] - user_prefs["energy"])
+    score += energy_similarity * 0.40
+    reasons.append(f"energy ~{song['energy']:.2f}")
+
+    # Acoustic bonus — worth 10 % when the user likes acoustic songs
+    if user_prefs.get("likes_acoustic") and song["acousticness"] >= 0.60:
+        score += 0.10
+        reasons.append("acoustic")
+
+    explanation = ", ".join(reasons)
+    return round(score, 4), explanation
+
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
     Functional implementation of the recommendation logic.
     Required by src/main.py
     """
-    # TODO: Implement scoring and ranking logic
-    # Expected return format: (song_dict, score, explanation)
-    return []
+    scored = [(_score_song(user_prefs, song), song) for song in songs]
+    scored.sort(key=lambda x: x[0][0], reverse=True)
+    return [(song, score, explanation) for (score, explanation), song in scored[:k]]
